@@ -3,11 +3,12 @@ package Model.Truck;
 public class TruckImpl implements Truck {
     private final int id;
     private final int weight;
-    private long waitingTime = -1;
+    private long waitingTime;
 
     public TruckImpl(int id, int weight) {
         this.id = id;
         this.weight = weight;
+        waitingTime = weight;
     }
     @Override
     public int getId() {

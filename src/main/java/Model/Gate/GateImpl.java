@@ -1,19 +1,24 @@
 package Model.Gate;
 
 import Model.Truck.Truck;
-import Model.Truck.TruckImpl;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class GateImpl implements Gate {
-    private List<Truck> trucks = new ArrayList<Truck>();
+    private List<Truck> trucks = new LinkedList<>();
 
     // number of trucks that can wait in the queue
     private final int capacity;
 
     public GateImpl(int capacity) {
         this.capacity = capacity;
+    }
+
+    private GateImpl(Gate otherGate) {
+        this.capacity = otherGate.getCapacity();
+        trucks = new LinkedList<>(otherGate.getTrucks().stream().map(Truck::copyTruck).toList());
     }
 
     @Override
@@ -54,18 +59,6 @@ public class GateImpl implements Gate {
         return true;
     }
 
-    @Override
-    public GateImpl copyGate() {
-        GateImpl newGate = new GateImpl(capacity);
-        trucks.forEach(truck -> newGate.pushTruck(truck.copyTruck()));
-        return newGate;
-    }
-
-    @Override
-    public long waitingTime() {
-        return trucks.stream().mapToLong(Truck::getWaitingTime).sum();
-    }
-
     // time needs to be less or equal to checked truck waiting time
     // otherwise the behaviour is undefined
     @Override
@@ -80,5 +73,20 @@ public class GateImpl implements Gate {
         }
 
         return false;
+    }
+
+    @Override
+    public GateImpl copyGate() {
+        return new GateImpl(this);
+    }
+
+    @Override
+    public long waitingTime() {
+        return trucks.stream().mapToLong(Truck::getWaitingTime).sum();
+    }
+
+    @Override
+    public int getCapacity() {
+        return capacity;
     }
 }

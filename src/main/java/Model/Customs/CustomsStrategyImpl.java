@@ -16,6 +16,8 @@ public class CustomsStrategyImpl implements CustomsStrategy {
         var timePassed = 0L;
         var gate1Copy = gate1.copyGate();
         var gate2Copy = gate2.copyGate();
+        replaceTrucks(gate1Copy, gate2Copy);
+
         // simulate the traffic
         while(!gate1Copy.getTrucks().isEmpty() || !gate2Copy.getTrucks().isEmpty()) {
             var forwardTime = getForwardTime(gate1Copy, gate2Copy);
@@ -23,6 +25,7 @@ public class CustomsStrategyImpl implements CustomsStrategy {
 
             if(!gate1Copy.getTrucks().isEmpty()) {
                 var truck = gate1Copy.getTrucks().get(0);
+                // if queue moved
                 if(gate1Copy.forwardBy(forwardTime)) {
                     // new truck starts being checked
                     if(!gate1Copy.getTrucks().isEmpty()) {
@@ -41,6 +44,7 @@ public class CustomsStrategyImpl implements CustomsStrategy {
 
             if(!gate2Copy.getTrucks().isEmpty()) {
                 var truck = gate2Copy.getTrucks().get(0);
+                // if queue moved
                 if(gate2Copy.forwardBy(forwardTime)) {
                     // new truck starts being checked
                     if(!gate2Copy.getTrucks().isEmpty()) {

@@ -7,10 +7,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class TruckStatusImpl implements TruckStatus {
-    // TODO
     private final int capacity;
     private final List<Truck> gate1Trucks;
     private final List<Truck> gate2Trucks;

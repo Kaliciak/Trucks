@@ -29,4 +29,5 @@ public interface Gate {
     Gate copyGate();
 
     long waitingTime();
+    int getCapacity();
 }

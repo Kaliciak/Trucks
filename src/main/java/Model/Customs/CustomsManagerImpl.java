@@ -97,7 +97,7 @@ public class CustomsManagerImpl implements CustomsManager {
             var case2Time = gate1Copy.waitingTime() + gate2Copy.waitingTime();
 
             // decide to which gate add given truck
-            if(case1Time < case2Time) {
+            if(case1Time <= case2Time) {
                 gate1.pushTruck(truck);
             }
             else {
