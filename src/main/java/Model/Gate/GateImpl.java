@@ -2,7 +2,6 @@ package Model.Gate;
 
 import Model.Truck.Truck;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class GateImpl implements Gate {
 
     @Override
     public List<Truck> getTrucks() {
-        return new ArrayList<>(trucks);
+        return new LinkedList<>(trucks);
     }
 
     @Override

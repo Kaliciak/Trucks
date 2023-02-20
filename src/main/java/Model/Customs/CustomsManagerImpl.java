@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Set;
 
 public class CustomsManagerImpl implements CustomsManager {
-    private final int queueCapacity;
     private final CustomsStrategy customsStrategy;
     private final TruckFactory truckFactory;
     private final Gate gate1;
@@ -23,7 +22,6 @@ public class CustomsManagerImpl implements CustomsManager {
     private final Set<Integer> passedTrucks = new HashSet<>();
 
     public CustomsManagerImpl(CustomsStrategy customsStrategy, TruckFactory truckFactory, int queueCapacity) {
-        this.queueCapacity = queueCapacity;
         this.customsStrategy = customsStrategy;
         this.truckFactory = truckFactory;
         gate1 = new GateImpl(queueCapacity);
@@ -47,6 +45,7 @@ public class CustomsManagerImpl implements CustomsManager {
             passedTrucks.add(truck2Id);
         }
 
+        // if any of the queues moved
         if(gate1Result || gate2Result) {
             customsStrategy.replaceTrucks(gate1, gate2);
             assignTrucks();
@@ -63,10 +62,11 @@ public class CustomsManagerImpl implements CustomsManager {
 
     @Override
     public TruckStatus getStatus() {
-        return new TruckStatusImpl(queueCapacity, gate1, gate2, documentsQueue, passedTrucks);
+        return new TruckStatusImpl(gate1, gate2, documentsQueue, passedTrucks);
     }
 
     private void assignTrucks() {
+        // assign trucks until the queues are full
         while(assignTruck());
     }
 
@@ -79,23 +79,15 @@ public class CustomsManagerImpl implements CustomsManager {
         Truck truck = documentsQueue.get(0);
 
         if(!gate1.isFull() && !gate2.isFull()) {
-            // if added to gate 1
-            var gate1Copy = gate1.copyGate();
-            var gate2Copy = gate2.copyGate();
+            // consider cases to decide to which gate assign given truck
 
-            gate1Copy.pushTruck(truck.copyTruck());
-            customsStrategy.computeEstimatedTimes(gate1Copy, gate2Copy);
-            var case1Time = gate1Copy.waitingTime() + gate2Copy.waitingTime();
+            // if added to gate 1
+            var case1Time = estimateTimeWithAddedTruck(gate1, gate2, truck);
 
             // if added to gate 2
-            gate1Copy = gate1.copyGate();
-            gate2Copy = gate2.copyGate();
+            var case2Time = estimateTimeWithAddedTruck(gate2, gate1, truck);
 
-            gate2Copy.pushTruck(truck.copyTruck());
-            customsStrategy.computeEstimatedTimes(gate1Copy, gate2Copy);
-            var case2Time = gate1Copy.waitingTime() + gate2Copy.waitingTime();
-
-            // decide to which gate add given truck
+            // decide to which gate assign given truck
             if(case1Time <= case2Time) {
                 gate1.pushTruck(truck);
             }
@@ -103,6 +95,7 @@ public class CustomsManagerImpl implements CustomsManager {
                 gate2.pushTruck(truck);
             }
         }
+        // if one of the gates is full
         else if(!gate1.isFull()) {
             gate1.pushTruck(truck);
         }
@@ -114,5 +107,14 @@ public class CustomsManagerImpl implements CustomsManager {
         customsStrategy.replaceTrucks(gate1, gate2);
         customsStrategy.computeEstimatedTimes(gate1, gate2);
         return true;
+    }
+
+    private long estimateTimeWithAddedTruck(Gate extendedGate, Gate otherGate, Truck truck) {
+        var extendedGateCopy = extendedGate.copyGate();
+        var otherGateCopy = otherGate.copyGate();
+
+        extendedGateCopy.pushTruck(truck.copyTruck());
+        customsStrategy.computeEstimatedTimes(extendedGateCopy, otherGateCopy);
+        return extendedGateCopy.waitingTime() + otherGateCopy.waitingTime();
     }
 }

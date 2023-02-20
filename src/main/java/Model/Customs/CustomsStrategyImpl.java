@@ -3,6 +3,8 @@ package Model.Customs;
 import Model.Gate.Gate;
 import Model.Truck.Truck;
 
+import java.util.function.IntConsumer;
+
 import static java.lang.Math.min;
 
 public class CustomsStrategyImpl implements CustomsStrategy {
@@ -23,43 +25,10 @@ public class CustomsStrategyImpl implements CustomsStrategy {
             var forwardTime = getForwardTime(gate1Copy, gate2Copy);
             timePassed += forwardTime;
 
-            if(!gate1Copy.getTrucks().isEmpty()) {
-                var truck = gate1Copy.getTrucks().get(0);
-                // if queue moved
-                if(gate1Copy.forwardBy(forwardTime)) {
-                    // new truck starts being checked
-                    if(!gate1Copy.getTrucks().isEmpty()) {
-                        var newTruck = gate1Copy.getTrucks().get(0);
-                        newTruck.setWaitingTime(newTruck.getWeight());
-                    }
-
-                    // set waiting time to the removed truck
-                    var foundTruck = gate1.findTruck(truck.getId());
-                    if(foundTruck == null) {
-                        foundTruck = gate2.findTruck(truck.getId());
-                    }
-                    foundTruck.setWaitingTime(timePassed);
-                }
-            }
-
-            if(!gate2Copy.getTrucks().isEmpty()) {
-                var truck = gate2Copy.getTrucks().get(0);
-                // if queue moved
-                if(gate2Copy.forwardBy(forwardTime)) {
-                    // new truck starts being checked
-                    if(!gate2Copy.getTrucks().isEmpty()) {
-                        var newTruck = gate2Copy.getTrucks().get(0);
-                        newTruck.setWaitingTime(newTruck.getWeight());
-                    }
-
-                    // set waiting time to the removed truck
-                    var foundTruck = gate1.findTruck(truck.getId());
-                    if(foundTruck == null) {
-                        foundTruck = gate2.findTruck(truck.getId());
-                    }
-                    foundTruck.setWaitingTime(timePassed);
-                }
-            }
+            long finalTimePassed = timePassed;
+            // forward the gates queues
+            forwardGate(gate1Copy, forwardTime, truckId -> setWaitingTimeWithId(truckId, finalTimePassed, gate1, gate2));
+            forwardGate(gate2Copy, forwardTime, truckId -> setWaitingTimeWithId(truckId, finalTimePassed, gate1, gate2));
 
             replaceTrucks(gate1Copy, gate2Copy);
         }
@@ -78,10 +47,35 @@ public class CustomsStrategyImpl implements CustomsStrategy {
         throw new IndexOutOfBoundsException();
     }
 
+    private void setWaitingTimeWithId(int truckId, long time, Gate gate1, Gate gate2) {
+        var foundTruck = gate1.findTruck(truckId);
+        if(foundTruck == null) {
+            foundTruck = gate2.findTruck(truckId);
+        }
+        foundTruck.setWaitingTime(time);
+    }
+
+    private void forwardGate(Gate gate, long forwardTime, IntConsumer setWaitingTimeFunc) {
+        if(!gate.getTrucks().isEmpty()) {
+            var truck = gate.getTrucks().get(0);
+            // if queue moved
+            if(gate.forwardBy(forwardTime)) {
+                // new truck starts being checked
+                if(!gate.getTrucks().isEmpty()) {
+                    var newTruck = gate.getTrucks().get(0);
+                    newTruck.setWaitingTime(newTruck.getWeight());
+                }
+
+                // set waiting time to the removed truck
+                setWaitingTimeFunc.accept(truck.getId());
+            }
+        }
+    }
+
     @Override
     public void replaceTrucks(Gate gate1, Gate gate2) {
         // swap trucks
-        // lighter trucks goes to the gate with less time to move, so they are checked quicker
+        // lighter trucks goes to the gate with less time to move, so they are checked sooner
         if(!gate1.getTrucks().isEmpty() && !gate2.getTrucks().isEmpty()) {
             var gate1moveTime = gate1.getTrucks().get(0).getWaitingTime();
             var gate2moveTime = gate2.getTrucks().get(0).getWaitingTime();
@@ -106,8 +100,6 @@ public class CustomsStrategyImpl implements CustomsStrategy {
                 }
             }
         }
-
-        // TODO: consider empty spaces
     }
 
     private void swapTrucks(Gate gate1, Gate gate2, Truck truck1, Truck truck2, int index) {

@@ -23,7 +23,7 @@ public class CustomsViewImpl implements CustomsView {
 
     @Override
     public void printWelcomeMessage() {
-        System.out.println("Welcome to truck customs simulation!");
+        System.out.println("Welcome to the truck customs simulation!");
         System.out.println("Type \"help\" to see available commands.");
     }
 

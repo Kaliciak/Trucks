@@ -5,13 +5,12 @@ import Model.Truck.Truck;
 import java.util.List;
 
 public interface Gate {
-    // getTrucks().get(0) is truck being checked right now
+    // getTrucks().get(0) is truck being checked by the staff right now
     // other trucks are the trucks waiting in order
     List<Truck> getTrucks();
-
-    Truck findTruck(int id);
-
-    boolean isFull();
+    Truck findTruck(int id);boolean isFull();
+    long waitingTime();
+    int getCapacity();
 
     // adds Truck to end of the gate's queue
     // returns true if there is space in queue
@@ -27,7 +26,4 @@ public interface Gate {
     boolean forwardBy(long time);
 
     Gate copyGate();
-
-    long waitingTime();
-    int getCapacity();
 }

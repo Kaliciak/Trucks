@@ -9,14 +9,12 @@ import java.util.List;
 import java.util.Set;
 
 public class TruckStatusImpl implements TruckStatus {
-    private final int capacity;
     private final List<Truck> gate1Trucks;
     private final List<Truck> gate2Trucks;
     private final List<Integer> documentsQueue;
     private final Set<Integer> passedTrucksIds;
 
-    public TruckStatusImpl(int capacity, Gate gate1, Gate gate2, List<Truck> documentsQueue, Set<Integer> passedTrucksIds) {
-        this.capacity = capacity;
+    public TruckStatusImpl(Gate gate1, Gate gate2, List<Truck> documentsQueue, Set<Integer> passedTrucksIds) {
         gate1Trucks = gate1.getTrucks().stream().map(Truck::copyTruck).toList();
         gate2Trucks = gate2.getTrucks().stream().map(Truck::copyTruck).toList();
         this.documentsQueue = documentsQueue.stream().map(Truck::getId).toList();
@@ -46,28 +44,13 @@ public class TruckStatusImpl implements TruckStatus {
     }
 
     @Override
-    public int getCapacity() {
-        return capacity;
-    }
-
-    @Override
     public List<Truck> getGate1Trucks() {
         return gate1Trucks.stream().map(Truck::copyTruck).toList();
     }
 
     @Override
-    public Truck getGate1CheckedTruck() {
-        return null;
-    }
-
-    @Override
     public List<Truck> getGate2Trucks() {
         return gate2Trucks.stream().map(Truck::copyTruck).toList();
-    }
-
-    @Override
-    public Truck getGate2CheckedTruck() {
-        return null;
     }
 
     @Override

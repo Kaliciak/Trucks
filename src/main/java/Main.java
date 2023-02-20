@@ -8,9 +8,7 @@ public class Main {
 
         view.printWelcomeMessage();
 
-        var readResult = true;
-        while (readResult) {
-            readResult = view.readInput();
-        }
+        // repeat until view.readInput() returns false
+        do {} while (view.readInput());
     }
 }
