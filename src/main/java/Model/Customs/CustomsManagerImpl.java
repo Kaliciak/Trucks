@@ -71,7 +71,6 @@ public class CustomsManagerImpl implements CustomsManager {
     }
 
     private boolean assignTruck() {
-        // TODO validate this, maybe we dont wont to always fill the empty queue
         // if there is no truck to add or both gates are full
         if(documentsQueue.isEmpty() || (gate1.isFull() && gate2.isFull())) {
             return false;
