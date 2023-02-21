@@ -30,6 +30,7 @@ public class CustomsViewImpl implements CustomsView {
     @Override
     public boolean readInput() {
         try {
+            System.out.print("> ");
             var line = reader.readLine();
             if(line == null) {
                 return false;
