@@ -1,9 +1,5 @@
 # How to run the project
-You can run this project with `run.sh` script using
-```
-./run.sh
-```
-Alternatively, if you have the newest gradle version, you can run the project with
+To run this project you need to have the newest gradle version. Then you can run the project with
 ```
 gradle run --console=plain
 ```
