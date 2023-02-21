@@ -10,5 +10,7 @@ public class Main {
 
         // repeat until view.readInput() returns false
         do {} while (view.readInput());
+
+        view.printExitMessage();
     }
 }

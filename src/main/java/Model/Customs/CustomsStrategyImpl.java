@@ -106,4 +106,50 @@ public class CustomsStrategyImpl implements CustomsStrategy {
         gate1.replaceTruck(truck2, index);
         gate2.replaceTruck(truck1, index);
     }
+
+    @Override
+    public boolean assignTruck(Truck truck, Gate gate1, Gate gate2) {
+        // if both gates are full
+        if(gate1.isFull() && gate2.isFull()) {
+            return false;
+        }
+
+        if(!gate1.isFull() && !gate2.isFull()) {
+            // consider cases to decide to which gate assign given truck
+
+            // if added to gate 1
+            var case1Time = estimateTimeWithAddedTruck(gate1, gate2, truck);
+
+            // if added to gate 2
+            var case2Time = estimateTimeWithAddedTruck(gate2, gate1, truck);
+
+            // decide to which gate assign given truck
+            if(case1Time <= case2Time) {
+                gate1.pushTruck(truck);
+            }
+            else {
+                gate2.pushTruck(truck);
+            }
+        }
+        // if one of the gates is full
+        else if(!gate1.isFull()) {
+            gate1.pushTruck(truck);
+        }
+        else if(!gate2.isFull()) {
+            gate2.pushTruck(truck);
+        }
+
+        replaceTrucks(gate1, gate2);
+        computeEstimatedTimes(gate1, gate2);
+        return true;
+    }
+
+    private long estimateTimeWithAddedTruck(Gate extendedGate, Gate otherGate, Truck truck) {
+        var extendedGateCopy = extendedGate.copyGate();
+        var otherGateCopy = otherGate.copyGate();
+
+        extendedGateCopy.pushTruck(truck.copyTruck());
+        computeEstimatedTimes(extendedGateCopy, otherGateCopy);
+        return extendedGateCopy.waitingTime() + otherGateCopy.waitingTime();
+    }
 }

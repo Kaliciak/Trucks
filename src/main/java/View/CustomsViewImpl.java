@@ -28,6 +28,11 @@ public class CustomsViewImpl implements CustomsView {
     }
 
     @Override
+    public void printExitMessage() {
+        System.out.println("Goodbye!");
+    }
+
+    @Override
     public boolean readInput() {
         try {
             System.out.print("> ");
